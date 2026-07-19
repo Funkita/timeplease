@@ -35,6 +35,8 @@ class DBWrapper:
             # SQLite datetime('now') -> CURRENT_TIMESTAMP
             query = query.replace("datetime('now')", "CURRENT_TIMESTAMP")
             query = query.replace("datetime('now', 'localtime')", "CURRENT_TIMESTAMP")
+            # SQLite MAX(X, Y) -> GREATEST(X, Y)
+            query = query.replace("MAX(0, used_sessions - 1)", "GREATEST(0, used_sessions - 1)")
             cursor = self.conn.cursor()
             cursor.execute(query, params)
             return cursor
