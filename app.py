@@ -22,10 +22,15 @@ app.secret_key = os.environ.get("SECRET_KEY", os.urandom(32))
 
 
 # ── DB 초기화 ─────────────────────────────────────────────────────────
+_db_initialized = False
+
+# 매 요청마다 DB 초기화(init_db)를 실행하면 엄청 느려지므로 최초 1회만 실행하도록 수정
 @app.before_request
 def setup():
-    # 최초 요청 시 DB 테이블 확인 (멱등 操作)
-    init_db()
+    global _db_initialized
+    if not _db_initialized:
+        init_db()
+        _db_initialized = True
 
 
 # ══════════════════════════════════════════════════════════════════════
