@@ -667,6 +667,12 @@ if __name__ == "__main__":
     init_db()
     print("=" * 50)
     print("  TimePlease Server Started")
+    print("=" * 50)
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    import traceback
+    return f"<pre>{traceback.format_exc()}</pre>", 500
     print("  Trainer Dashboard : http://localhost:5000/")
     print("  Member Booking    : http://localhost:5000/r/trainer_kim")
     print("=" * 50)
