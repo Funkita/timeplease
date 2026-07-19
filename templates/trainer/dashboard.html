@@ -703,6 +703,15 @@ async function loadMembers() {
     return;
   }
 
+  // 전화번호 포맷팅 헬퍼 함수
+  const formatPhone = (phone) => {
+    if (!phone) return '';
+    let val = phone.replace(/[^0-9]/g, '');
+    if (val.length < 4) return val;
+    if (val.length < 8) return val.substr(0, 3) + '-' + val.substr(3);
+    return val.substr(0, 3) + '-' + val.substr(3, 4) + '-' + val.substr(7, 4);
+  };
+
   container.innerHTML = members.map(m => {
     const remaining = m.total_sessions - m.used_sessions;
     const pct = Math.round((m.used_sessions / m.total_sessions) * 100) || 0;
@@ -712,7 +721,7 @@ async function loadMembers() {
       <div class="flex items-start justify-between mb-3">
         <div>
           <p class="font-bold text-sm">${m.name}</p>
-          <p class="text-xs text-slate-400 mt-0.5">${m.phone}</p>
+          <p class="text-xs text-slate-400 mt-0.5">${formatPhone(m.phone)}</p>
         </div>
         <div class="flex gap-1.5">
           <button onclick="openEditMemberModal(${JSON.stringify(m).replace(/"/g,'&quot;')})" class="btn-sm-green">수정</button>
