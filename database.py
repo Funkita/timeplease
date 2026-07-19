@@ -3,6 +3,16 @@ import sqlite3
 
 DATABASE = "timeplease.db"
 DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
+    import urllib.parse
+    creds, host_part = DATABASE_URL.rsplit("@", 1)
+    prefix = "postgresql://"
+    if creds.startswith(prefix):
+        user_pass = creds[len(prefix):]
+        if ":" in user_pass:
+            user, pwd = user_pass.split(":", 1)
+            pwd = urllib.parse.quote(pwd, safe="")
+            DATABASE_URL = f"{prefix}{user}:{pwd}@{host_part}"
 
 class DBWrapper:
     def __init__(self):
