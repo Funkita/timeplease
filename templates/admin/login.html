@@ -3,19 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>수업콕 강사 로그인</title>
+  <title>마스터 로그인</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/variable/pretendardvariable.css">
   
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9386074895373296" crossorigin="anonymous"></script>
-
   <style>
     :root {
       --bg: #0f172a;
       --surface: #1e293b;
       --text: #f8fafc;
-      --primary: #818cf8;
-      --primary-hover: #6366f1;
+      --primary: #f43f5e;
+      --primary-hover: #e11d48;
     }
     * { box-sizing: border-box; }
     body {
@@ -56,61 +53,42 @@
       cursor: pointer; transition: background 0.2s;
     }
     button:hover { background: var(--primary-hover); }
-    .footer { 
-      margin-top: 16px; 
-      text-align: center; 
-      font-size: 0.85rem; 
-      color: #94a3b8; 
-      word-break: keep-all; 
-    }
-    .footer a { color: var(--primary); text-decoration: none; }
-    .footer a:hover { text-decoration: underline; }
     #errorMsg { color: #f87171; font-size: 0.9rem; text-align: center; margin-bottom: 16px; display: none; }
     
     @media (max-width: 380px) {
       .card { padding: 24px 20px; }
       h2 { font-size: 1.35rem; }
-      .footer { font-size: 0.8rem; }
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>수업콕 강사 로그인</h2>
+    <h2>마스터 로그인 👑</h2>
     <div id="errorMsg"></div>
     <form id="loginForm">
       <div class="form-group">
-        <label for="slug">예약 주소 (슬러그)</label>
-        <input type="text" id="slug" placeholder="ex) trainer_kim" required autocomplete="username">
-      </div>
-      <div class="form-group">
-        <label for="password">비밀번호</label>
+        <label for="password">마스터 비밀번호</label>
         <input type="password" id="password" required autocomplete="current-password">
       </div>
-      <button type="submit" id="submitBtn">로그인</button>
+      <button type="submit" id="submitBtn">접속하기</button>
     </form>
-    <div class="footer">
-      계정이 없으신가요? <a href="/trainer/register">강사 등록하기</a><br><br>
-      <span style="font-size: 0.75rem; color: #64748b;">이용 문의: wonjaefunkita@gmail.com</span>
-    </div>
   </div>
 
   <script>
     document.getElementById('loginForm').onsubmit = async (e) => {
       e.preventDefault();
-      const slug = document.getElementById('slug').value.trim();
       const password = document.getElementById('password').value;
       const btn = document.getElementById('submitBtn');
       const errEl = document.getElementById('errorMsg');
 
-      btn.disabled = true; btn.textContent = '로그인 중...';
+      btn.disabled = true; btn.textContent = '확인 중...';
       errEl.style.display = 'none';
 
       try {
-        const res = await fetch('/trainer/login', {
+        const res = await fetch('/master/login', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({slug, password})
+          body: JSON.stringify({password})
         });
         const data = await res.json();
         if (res.ok) {
@@ -123,7 +101,7 @@
         errEl.textContent = '오류가 발생했습니다.';
         errEl.style.display = 'block';
       } finally {
-        btn.disabled = false; btn.textContent = '로그인';
+        btn.disabled = false; btn.textContent = '접속하기';
       }
     };
   </script>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>수업콕 마스터 대시보드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+        }
+      }
+    };
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0f172a; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+    .glass {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(244, 63, 94, 0.15);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  
+  <header class="glass sticky top-0 z-40 px-4 py-3 flex items-center justify-between gap-2 border-b border-rose-500/20">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center text-white font-bold text-sm">👑</div>
+      <div>
+        <p class="text-xs text-slate-400 leading-none">마스터</p>
+        <p class="text-sm font-bold leading-tight truncate break-keep" style="word-break: keep-all;">전체 통합 대시보드</p>
+      </div>
+    </div>
+    <div>
+      <a href="/master/logout" class="text-xs text-slate-400 font-semibold border border-slate-600 rounded-lg px-2.5 py-1.5 hover:bg-slate-700 transition-all">로그아웃</a>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-3">
+      <div class="glass rounded-xl p-4 text-center">
+        <p class="text-xs text-slate-400 mb-1">총 강사</p>
+        <p class="text-2xl font-bold text-rose-400">{{ stats.total_trainers }}</p>
+      </div>
+      <div class="glass rounded-xl p-4 text-center">
+        <p class="text-xs text-slate-400 mb-1">총 회원</p>
+        <p class="text-2xl font-bold text-blue-400">{{ stats.total_members }}</p>
+      </div>
+      <div class="glass rounded-xl p-4 text-center">
+        <p class="text-xs text-slate-400 mb-1">총 예약</p>
+        <p class="text-2xl font-bold text-emerald-400">{{ stats.total_reservations }}</p>
+      </div>
+    </div>
+
+    <!-- Trainers List -->
+    <div>
+      <h2 class="text-lg font-bold mb-3">강사 목록</h2>
+      <div class="space-y-3">
+        {% for t in trainers %}
+        <div class="glass rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3" id="trainer-{{ t.id }}">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">{{ t.name }}</span>
+              <span class="text-xs text-slate-400">/r/{{ t.custom_slug }}</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">가입일: {{ t.created_at[:10] }}</p>
+            <div class="flex gap-3 mt-2 text-xs font-semibold">
+              <span class="text-blue-400">회원: {{ t.member_count }}명</span>
+              <span class="text-emerald-400">예약: {{ t.reservation_count }}건</span>
+            </div>
+          </div>
+          <div>
+            <button onclick="deleteTrainer('{{ t.id }}', '{{ t.name }}')" class="bg-red-500/10 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-500/20 transition-all">강사 삭제</button>
+          </div>
+        </div>
+        {% endfor %}
+        {% if not trainers %}
+        <div class="text-center text-slate-500 text-sm py-8">가입한 강사가 없습니다.</div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  <script>
+    async function deleteTrainer(id, name) {
+      if (!confirm(정말로 '' 강사를 삭제하시겠습니까?\n\n⚠ 경고: 해당 강사의 모든 회원과 예약 기록이 영구 삭제됩니다.)) return;
+      
+      try {
+        const res = await fetch(/api/master/trainers/, { method: 'DELETE' });
+        if (res.ok) {
+          alert('삭제되었습니다.');
+          location.reload();
+        } else {
+          alert('삭제 실패');
+        }
+      } catch (err) {
+        alert('오류 발생');
+      }
+    }
+  </script>
+</body>
+</html>

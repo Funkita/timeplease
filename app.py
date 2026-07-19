@@ -4,9 +4,12 @@ app.py — 수업콕 Flask Application
 """
 
 import os
+from datetime import datetime, timedelta
 import re
 import uuid
 from functools import wraps
+
+MASTER_PASSWORD = os.environ.get("MASTER_PASSWORD", "@3010@")
 
 from flask import (
     Flask, jsonify, render_template, request,
@@ -671,6 +674,99 @@ def cancel_reservation(reservation_id):
 
 
 # ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════
+# MASTER (ADMIN) ROUTES
+# ══════════════════════════════════════════════════════════════════════
+
+def master_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get("is_master"):
+            return redirect(url_for("master_login"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route("/master")
+def master_index():
+    if session.get("is_master"):
+        return redirect(url_for("master_dashboard"))
+    return redirect(url_for("master_login"))
+
+@app.route("/master/login", methods=["GET", "POST"])
+def master_login():
+    if request.method == "GET":
+        return render_template("admin/login.html")
+    
+    data = request.get_json(silent=True) or {}
+    password = data.get("password")
+    
+    if password == MASTER_PASSWORD:
+        session.clear()
+        session["is_master"] = True
+        return jsonify({"redirect": url_for("master_dashboard")})
+    
+    return jsonify({"error": "비밀번호가 일치하지 않습니다."}), 401
+
+@app.route("/master/logout")
+def master_logout():
+    session.clear()
+    return redirect(url_for("master_login"))
+
+@app.route("/master/dashboard")
+@master_required
+def master_dashboard():
+    db = get_db()
+    # 통계
+    total_trainers = db.execute("SELECT COUNT(*) as c FROM trainers").fetchone()["c"]
+    total_members = db.execute("SELECT COUNT(*) as c FROM members").fetchone()["c"]
+    total_reservations = db.execute("SELECT COUNT(*) as c FROM reservations").fetchone()["c"]
+    
+    # 강사 리스트 (회원수, 예약수 포함)
+    trainers = db.execute("""
+        SELECT t.*, 
+               (SELECT COUNT(*) FROM members m WHERE m.trainer_id = t.id) as member_count,
+               (SELECT COUNT(*) FROM reservations r WHERE r.trainer_id = t.id) as reservation_count
+        FROM trainers t
+        ORDER BY t.created_at DESC
+    """).fetchall()
+    
+    db.close()
+    
+    stats = {
+        "total_trainers": total_trainers,
+        "total_members": total_members,
+        "total_reservations": total_reservations
+    }
+    
+    return render_template("admin/dashboard.html", stats=stats, trainers=[dict(t) for t in trainers])
+
+@app.route("/api/master/trainers/<trainer_id>", methods=["DELETE"])
+@master_required
+def master_delete_trainer(trainer_id):
+    db = get_db()
+    
+    # 해당 강사의 회원 ID들
+    members = db.execute("SELECT id FROM members WHERE trainer_id = ?", (trainer_id,)).fetchall()
+    member_ids = [m["id"] for m in members]
+    
+    if member_ids:
+        placeholders = ",".join(["?"] * len(member_ids))
+        if len(member_ids) == 1:
+            db.execute("DELETE FROM session_adjustments WHERE member_id = ?", (member_ids[0],))
+        else:
+            db.execute(f"DELETE FROM session_adjustments WHERE member_id IN ({placeholders})", member_ids)
+        
+    db.execute("DELETE FROM reservations WHERE trainer_id = ?", (trainer_id,))
+    db.execute("DELETE FROM availabilities WHERE trainer_id = ?", (trainer_id,))
+    db.execute("DELETE FROM members WHERE trainer_id = ?", (trainer_id,))
+    db.execute("DELETE FROM trainers WHERE id = ?", (trainer_id,))
+    
+    db.commit()
+    db.close()
+    
+    return jsonify({"message": "강사 및 관련 데이터가 모두 삭제되었습니다."})
+
+
 if __name__ == "__main__":
     import sys, io
     if sys.stdout.encoding != 'utf-8':
