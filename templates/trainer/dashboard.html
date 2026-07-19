@@ -49,19 +49,23 @@
       border: 1px solid rgba(99, 102, 241, 0.15);
     }
     .tab-btn {
-      padding: 8px 18px;
+      padding: 8px 14px;
       border-radius: 8px;
       font-size: 0.85rem;
       font-weight: 600;
       transition: all 0.2s;
       color: #94a3b8;
       border: 1px solid transparent;
+      white-space: nowrap;
+      word-break: keep-all;
     }
     .tab-btn.active {
       background: rgba(99, 102, 241, 0.2);
       border-color: rgba(99, 102, 241, 0.4);
       color: #818cf8;
     }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .slot-cell {
       min-height: 40px;
       border-radius: 8px;
@@ -203,27 +207,27 @@
 <body class="min-h-screen">
 
 <!-- ── HEADER ───────────────────────────────────────────────────── -->
-<header class="glass sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">콕</div>
-    <div>
+<header class="glass sticky top-0 z-40 px-3 py-3 flex items-center justify-between gap-2">
+  <div class="flex items-center gap-2 shrink overflow-hidden">
+    <div class="w-8 h-8 shrink-0 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">콕</div>
+    <div class="shrink overflow-hidden">
       <p class="text-xs text-slate-400 leading-none">수업콕</p>
-      <p class="text-sm font-bold leading-tight">{{ trainer.name }} 강사 대시보드</p>
+      <p class="text-sm font-bold leading-tight truncate break-keep" style="word-break: keep-all;">{{ trainer.name }} 강사 대시보드</p>
     </div>
   </div>
-  <div class="flex items-center gap-2">
-    <button id="copyLinkBtn" onclick="copyLink()" class="text-xs text-indigo-400 font-semibold border border-indigo-500/30 rounded-lg px-3 py-1.5 hover:bg-indigo-500/10 transition-all">
+  <div class="flex items-center gap-1.5 shrink-0">
+    <button id="copyLinkBtn" onclick="copyLink()" class="text-[11px] whitespace-nowrap text-indigo-400 font-semibold border border-indigo-500/30 rounded-lg px-2.5 py-1.5 hover:bg-indigo-500/10 transition-all">
       📋 링크 복사
     </button>
-    <a href="/trainer/logout" class="text-xs text-slate-400 font-semibold border border-slate-600 rounded-lg px-3 py-1.5 hover:bg-slate-700 transition-all ml-1" style="text-decoration:none;">로그아웃</a>
+    <a href="/trainer/logout" class="text-[11px] whitespace-nowrap text-slate-400 font-semibold border border-slate-600 rounded-lg px-2.5 py-1.5 hover:bg-slate-700 transition-all" style="text-decoration:none;">로그아웃</a>
   </div>
 </header>
 
 <!-- ── TABS ──────────────────────────────────────────────────────── -->
-<div class="sticky top-[56px] z-30 glass border-t border-slate-700/50 px-4 py-2 flex gap-2">
-  <button class="tab-btn active" id="tab-calendar" onclick="switchTab('calendar')">📅 캘린더</button>
-  <button class="tab-btn" id="tab-members"  onclick="switchTab('members')">👥 회원 관리</button>
-  <button class="tab-btn" id="tab-reservations" onclick="switchTab('reservations')">📋 예약 현황</button>
+<div class="sticky top-[56px] z-30 glass border-t border-slate-700/50 px-3 py-2 flex gap-1.5 overflow-x-auto hide-scrollbar">
+  <button class="tab-btn active shrink-0" id="tab-calendar" onclick="switchTab('calendar')">📅 캘린더</button>
+  <button class="tab-btn shrink-0" id="tab-members"  onclick="switchTab('members')">👥 회원 관리</button>
+  <button class="tab-btn shrink-0" id="tab-reservations" onclick="switchTab('reservations')">📋 예약 현황</button>
 </div>
 
 <main class="max-w-xl mx-auto px-4 py-5 space-y-4">
