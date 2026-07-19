@@ -289,7 +289,13 @@ def delete_slot(slot_id):
         return jsonify({"error": "슬롯을 찾을 수 없습니다."}), 404
     if slot["status"] == "reserved":
         db.close()
-        return jsonify({"error": "예약된 슬롯은 삭제할 수 없습니다. 먼저 예약을 취소하세요."}), 400
+        return jsonify({"error": "예약이 확정된 슬롯은 삭제할 수 없습니다. 예약 취소를 먼저 진행하세요."}), 400
+    
+    # 취소 후 다시 열린(available) 슬롯을 삭제할 때, 
+    # 과거 취소된 예약 기록이 이 슬롯을 참조하고 있으면 FK 제약 조건 에러가 발생함.
+    # 따라서 삭제 전 참조를 NULL로 변경해 줌.
+    db.execute("UPDATE reservations SET availability_id = NULL WHERE availability_id = ?", (slot_id,))
+    
     db.execute("DELETE FROM availabilities WHERE id=?", (slot_id,))
     db.commit()
     db.close()
