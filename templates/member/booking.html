@@ -378,7 +378,7 @@
       </div>
       <div>
         <label for="authPhone">전화번호</label>
-        <input type="tel" id="authPhone" placeholder="010-1234-5678" autocomplete="tel" />
+        <input type="tel" id="authPhone" placeholder="010-1234-5678" autocomplete="tel" oninput="autoHyphen(this)" />
       </div>
 
       <div id="authError" class="hidden error-box"></div>
@@ -1087,5 +1087,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 </script>
 
+<script>
+// 전화번호 자동 하이픈
+function autoHyphen(target) {
+  let val = target.value.replace(/[^0-9]/g, '');
+  if(val.length < 4) { target.value = val; return; }
+  if(val.length < 8) { target.value = val.substr(0,3) + '-' + val.substr(3); return; }
+  target.value = val.substr(0,3) + '-' + val.substr(3,4) + '-' + val.substr(7,4);
+}
+</script>
 </body>
 </html>
