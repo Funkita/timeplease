@@ -69,7 +69,7 @@
               <span class="font-bold text-slate-200">{{ t.name }}</span>
               <span class="text-xs text-slate-400">/r/{{ t.custom_slug }}</span>
             </div>
-            <p class="text-xs text-slate-400 mt-1">가입일: {{ t.created_at[:10] }}</p>
+            <p class="text-[10px] text-slate-500 mt-1 font-mono">ID: {{ t.id[:8] }}...</p>
             <div class="flex gap-3 mt-2 text-xs font-semibold">
               <span class="text-blue-400">회원: {{ t.member_count }}명</span>
               <span class="text-emerald-400">예약: {{ t.reservation_count }}건</span>

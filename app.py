@@ -727,7 +727,7 @@ def master_dashboard():
                (SELECT COUNT(*) FROM members m WHERE m.trainer_id = t.id) as member_count,
                (SELECT COUNT(*) FROM reservations r WHERE r.trainer_id = t.id) as reservation_count
         FROM trainers t
-        ORDER BY t.created_at DESC
+        ORDER BY t.name ASC
     """).fetchall()
     
     db.close()
