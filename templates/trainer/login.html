@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>수업콕 강사 로그인</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/variable/pretendardvariable.css">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f8fafc;
+      --primary: #818cf8;
+      --primary-hover: #6366f1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Pretendard Variable', -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: var(--surface);
+      padding: 30px;
+      border-radius: 12px;
+      width: 100%; max-width: 360px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    h2 { margin: 0 0 20px 0; text-align: center; color: var(--primary); }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-size: 0.9rem; color: #cbd5e1; }
+    input {
+      width: 100%; padding: 12px;
+      border: 1px solid #334155; border-radius: 6px;
+      background: #0f172a; color: white;
+      font-size: 1rem;
+    }
+    input:focus { outline: none; border-color: var(--primary); }
+    button {
+      width: 100%; padding: 14px;
+      border: none; border-radius: 6px;
+      background: var(--primary); color: white;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+    }
+    button:hover { background: var(--primary-hover); }
+    .footer { margin-top: 16px; text-align: center; font-size: 0.85rem; color: #94a3b8; }
+    .footer a { color: var(--primary); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    #errorMsg { color: #f87171; font-size: 0.9rem; text-align: center; margin-bottom: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>수업콕 강사 로그인</h2>
+    <div id="errorMsg"></div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="slug">예약 주소 (슬러그)</label>
+        <input type="text" id="slug" placeholder="ex) trainer_kim" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" required autocomplete="current-password">
+      </div>
+      <button type="submit" id="submitBtn">로그인</button>
+    </form>
+    <div class="footer">
+      계정이 없으신가요? <a href="/trainer/register">강사 등록하기</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const slug = document.getElementById('slug').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('submitBtn');
+      const errEl = document.getElementById('errorMsg');
+
+      btn.disabled = true; btn.textContent = '로그인 중...';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/trainer/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({slug, password})
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.href = data.redirect;
+        } else {
+          errEl.textContent = data.error;
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.textContent = '오류가 발생했습니다.';
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false; btn.textContent = '로그인';
+      }
+    };
+  </script>
+</body>
+</html>

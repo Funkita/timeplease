@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>수업콕 강사 등록</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/variable/pretendardvariable.css">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f8fafc;
+      --primary: #818cf8;
+      --primary-hover: #6366f1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Pretendard Variable', -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: var(--surface);
+      padding: 30px;
+      border-radius: 12px;
+      width: 100%; max-width: 360px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    h2 { margin: 0 0 20px 0; text-align: center; color: var(--primary); }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-size: 0.9rem; color: #cbd5e1; }
+    input {
+      width: 100%; padding: 12px;
+      border: 1px solid #334155; border-radius: 6px;
+      background: #0f172a; color: white;
+      font-size: 1rem;
+    }
+    input:focus { outline: none; border-color: var(--primary); }
+    .help-text { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
+    button {
+      width: 100%; padding: 14px; margin-top: 8px;
+      border: none; border-radius: 6px;
+      background: var(--primary); color: white;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+    }
+    button:hover { background: var(--primary-hover); }
+    .footer { margin-top: 16px; text-align: center; font-size: 0.85rem; color: #94a3b8; }
+    .footer a { color: var(--primary); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    #errorMsg { color: #f87171; font-size: 0.9rem; text-align: center; margin-bottom: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>수업콕 강사 등록</h2>
+    <div id="errorMsg"></div>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="name">이름 (또는 센터명)</label>
+        <input type="text" id="name" placeholder="ex) 김코치" required>
+      </div>
+      <div class="form-group">
+        <label for="slug">예약 주소 (영문/숫자)</label>
+        <input type="text" id="slug" placeholder="ex) trainer_kim" required autocomplete="username">
+        <div class="help-text">회원들에게 안내할 주소: /r/<span id="slugPreview">...</span></div>
+      </div>
+      <div class="form-group">
+        <label for="password">비밀번호 (6자 이상)</label>
+        <input type="password" id="password" required autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label for="confirm">비밀번호 확인</label>
+        <input type="password" id="confirm" required autocomplete="new-password">
+      </div>
+      <button type="submit" id="submitBtn">가입하기</button>
+    </form>
+    <div class="footer">
+      이미 계정이 있으신가요? <a href="/trainer/login">로그인</a>
+    </div>
+  </div>
+
+  <script>
+    const slugInput = document.getElementById('slug');
+    const slugPreview = document.getElementById('slugPreview');
+    slugInput.addEventListener('input', () => {
+      slugPreview.textContent = slugInput.value || '...';
+    });
+
+    document.getElementById('registerForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const slug = slugInput.value.trim();
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm').value;
+      
+      const btn = document.getElementById('submitBtn');
+      const errEl = document.getElementById('errorMsg');
+
+      if (password !== confirm) {
+        errEl.textContent = '비밀번호가 일치하지 않습니다.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true; btn.textContent = '처리 중...';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/trainer/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name, slug, password, confirm})
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.href = data.redirect;
+        } else {
+          errEl.textContent = data.error;
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.textContent = '오류가 발생했습니다.';
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false; btn.textContent = '가입하기';
+      }
+    };
+  </script>
+</body>
+</html>
