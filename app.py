@@ -93,7 +93,7 @@ def _member_belongs_to_session(member_id):
 def index():
     if "trainer_id" in session:
         return redirect(url_for("dashboard"))
-    return redirect(url_for("trainer_login"))
+    return render_template("landing.html")
 
 
 @app.route("/dashboard")
